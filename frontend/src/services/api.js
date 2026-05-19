@@ -1,9 +1,17 @@
 import axios from 'axios'
 
+// La API key se inyecta en tiempo de build desde la variable de entorno
+// VITE_API_KEY (definida en el .env del frontend).
+// En desarrollo local puedes usar cualquier valor que coincida con el backend.
+const API_KEY = import.meta.env.VITE_API_KEY ?? ''
+
 const api = axios.create({
   baseURL: '/api/v1',
   timeout: 60_000,  // GEE puede tardar; mock es instantáneo
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': API_KEY,
+  },
 })
 
 /**

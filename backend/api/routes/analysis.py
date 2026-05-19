@@ -12,8 +12,9 @@ from models.orm.analysis import TerrainAnalysis, CropScore
 from models.schemas.analysis import AnalyzeRequest, AnalysisResponse, TerrainFeatures, CropScoreResponse
 from modules.geo.feature_extractor import validate_and_fix_polygon, calculate_area_ha, extract_features
 from modules.scoring.engine import run_scoring
+from api.auth import require_api_key
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_api_key)])
 logger = logging.getLogger(__name__)
 
 

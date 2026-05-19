@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from models.orm.terrain import Terrain
+from api.auth import require_api_key
 import logging
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_api_key)])
 logger = logging.getLogger(__name__)
 
 

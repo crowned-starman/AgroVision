@@ -3,6 +3,7 @@ Scoring basado en reglas agronómicas.
 Usa funciones trapezoidales para cada dimensión del cultivo.
 """
 import logging
+from simpleeval import simple_eval, FeatureNotAvailable, InvalidExpression
 
 logger = logging.getLogger(__name__)
 
@@ -36,11 +37,20 @@ def _check_limiting_factors(features: dict, crop: dict) -> list[dict]:
         condition = factor["condition"]
         triggered = False
 
-        # Evaluación simple de condiciones del YAML
+        # Evaluación segura de condiciones del YAML mediante simpleeval.
+        # A diferencia de eval(), simpleeval solo permite expresiones
+        # aritméticas y comparaciones — sin imports, atributos ni llamadas
+        # a funciones arbitrarias.
         try:
-            # Contexto de evaluación seguro con las features
             ctx = {k: v for k, v in features.items() if isinstance(v, (int, float))}
-            triggered = eval(condition, {"__builtins__": {}}, ctx)
+            result = simple_eval(condition, names=ctx)
+            triggered = bool(result)
+        except (FeatureNotAvailable, InvalidExpression) as e:
+            logger.error(
+                f"Condición no permitida en cultivo '{crop.get('id', '?')}': "
+                f"'{condition}' — {e}"
+            )
+            continue
         except Exception as e:
             logger.warning(f"Error evaluando condición '{condition}': {e}")
             continue
