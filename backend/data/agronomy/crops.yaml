@@ -1,0 +1,432 @@
+crops:
+
+  - id: maiz
+    name: Maíz
+    scientific_name: Zea mays
+    category: cereal
+    active: true
+    description: Cultivo básico de México, amplia adaptabilidad climática
+    requirements:
+      temperature:
+        min_c: 8
+        optimal_min_c: 18
+        optimal_max_c: 30
+        max_c: 40
+        weight: 0.25
+      precipitation:
+        annual_min_mm: 400
+        annual_optimal_mm: 700
+        annual_max_mm: 1200
+        weight: 0.20
+      soil_ph:
+        min: 5.0
+        optimal_min: 5.8
+        optimal_max: 7.0
+        max: 8.0
+        weight: 0.20
+      ndvi_baseline:
+        min_viable: 0.12
+        weight: 0.15
+      slope:
+        max_degrees: 15
+        weight: 0.10
+      soil_texture:
+        preferred: ["loam", "clay_loam", "sandy_loam"]
+        weight: 0.10
+    limiting_factors:
+      - name: helada_severa
+        condition: temp_min_c < -2
+        severity: critical
+        message: Temperatura mínima por debajo de -2°C causa daño severo en maíz
+      - name: exceso_arcilla
+        condition: clay_pct > 65
+        severity: high
+        message: Suelo muy arcilloso dificulta drenaje y germinación
+
+  - id: frijol
+    name: Frijol
+    scientific_name: Phaseolus vulgaris
+    category: leguminosa
+    active: true
+    description: Leguminosa básica con buena adaptación a condiciones semiáridas
+    requirements:
+      temperature:
+        min_c: 10
+        optimal_min_c: 16
+        optimal_max_c: 28
+        max_c: 35
+        weight: 0.25
+      precipitation:
+        annual_min_mm: 300
+        annual_optimal_mm: 600
+        annual_max_mm: 1000
+        weight: 0.20
+      soil_ph:
+        min: 5.5
+        optimal_min: 6.0
+        optimal_max: 7.5
+        max: 8.5
+        weight: 0.20
+      ndvi_baseline:
+        min_viable: 0.10
+        weight: 0.15
+      slope:
+        max_degrees: 20
+        weight: 0.10
+      soil_texture:
+        preferred: ["loam", "sandy_loam", "clay_loam"]
+        weight: 0.10
+    limiting_factors:
+      - name: helada
+        condition: temp_min_c < 0
+        severity: critical
+        message: El frijol no tolera heladas
+      - name: encharcamiento
+        condition: clay_pct > 60 and annual_precip_mm > 1100
+        severity: high
+        message: Riesgo de encharcamiento por alta arcilla y precipitación
+
+  - id: trigo
+    name: Trigo
+    scientific_name: Triticum aestivum
+    category: cereal
+    active: true
+    description: Cereal de clima templado, requiere estación fría para vernalización
+    requirements:
+      temperature:
+        min_c: -5
+        optimal_min_c: 10
+        optimal_max_c: 22
+        max_c: 32
+        weight: 0.30
+      precipitation:
+        annual_min_mm: 350
+        annual_optimal_mm: 600
+        annual_max_mm: 900
+        weight: 0.20
+      soil_ph:
+        min: 5.5
+        optimal_min: 6.0
+        optimal_max: 7.5
+        max: 8.0
+        weight: 0.20
+      ndvi_baseline:
+        min_viable: 0.10
+        weight: 0.10
+      slope:
+        max_degrees: 12
+        weight: 0.10
+      soil_texture:
+        preferred: ["loam", "clay_loam", "silt_loam"]
+        weight: 0.10
+    limiting_factors:
+      - name: calor_excesivo
+        condition: temp_max_c > 35
+        severity: critical
+        message: Temperaturas >35°C durante floración destruyen el grano
+
+  - id: aguacate
+    name: Aguacate
+    scientific_name: Persea americana
+    category: frutal
+    active: true
+    description: Frutal tropical-subtropical de alto valor, sensible a heladas y encharcamiento
+    requirements:
+      temperature:
+        min_c: 5
+        optimal_min_c: 17
+        optimal_max_c: 28
+        max_c: 38
+        weight: 0.30
+      precipitation:
+        annual_min_mm: 800
+        annual_optimal_mm: 1200
+        annual_max_mm: 2000
+        weight: 0.20
+      soil_ph:
+        min: 5.0
+        optimal_min: 5.5
+        optimal_max: 7.0
+        max: 7.5
+        weight: 0.20
+      ndvi_baseline:
+        min_viable: 0.20
+        weight: 0.10
+      slope:
+        max_degrees: 20
+        weight: 0.10
+      organic_carbon:
+        min: 1.0
+        optimal_min: 2.0
+        optimal_max: 4.0
+        max: 6.0
+        weight: 0.10
+    limiting_factors:
+      - name: helada_critica
+        condition: temp_min_c < 2
+        severity: critical
+        message: El aguacate Hass muere con heladas menores a 2°C
+      - name: encharcamiento
+        condition: clay_pct > 50 and annual_precip_mm > 1500
+        severity: critical
+        message: El aguacate es muy susceptible al encharcamiento (Phytophthora)
+      - name: ph_alcalino
+        condition: ph_mean > 7.5
+        severity: high
+        message: pH alcalino causa clorosis férrica en aguacate
+
+  - id: sorgo
+    name: Sorgo
+    scientific_name: Sorghum bicolor
+    category: cereal
+    active: true
+    description: Muy tolerante a sequía y calor, ideal para zonas semiáridas
+    requirements:
+      temperature:
+        min_c: 10
+        optimal_min_c: 22
+        optimal_max_c: 35
+        max_c: 42
+        weight: 0.25
+      precipitation:
+        annual_min_mm: 250
+        annual_optimal_mm: 500
+        annual_max_mm: 1000
+        weight: 0.25
+      soil_ph:
+        min: 5.0
+        optimal_min: 5.5
+        optimal_max: 7.5
+        max: 8.5
+        weight: 0.20
+      ndvi_baseline:
+        min_viable: 0.08
+        weight: 0.15
+      slope:
+        max_degrees: 15
+        weight: 0.10
+      soil_texture:
+        preferred: ["loam", "clay_loam", "clay", "sandy_loam"]
+        weight: 0.05
+    limiting_factors:
+      - name: helada
+        condition: temp_min_c < 0
+        severity: critical
+        message: El sorgo no tolera temperaturas bajo cero
+
+  - id: tomate
+    name: Tomate
+    scientific_name: Solanum lycopersicum
+    category: hortaliza
+    active: true
+    description: Hortaliza de alto valor, requiere suelos bien drenados y temperaturas moderadas
+    requirements:
+      temperature:
+        min_c: 10
+        optimal_min_c: 18
+        optimal_max_c: 28
+        max_c: 35
+        weight: 0.25
+      precipitation:
+        annual_min_mm: 400
+        annual_optimal_mm: 700
+        annual_max_mm: 1200
+        weight: 0.15
+      soil_ph:
+        min: 5.5
+        optimal_min: 6.0
+        optimal_max: 7.0
+        max: 7.5
+        weight: 0.25
+      ndvi_baseline:
+        min_viable: 0.10
+        weight: 0.10
+      slope:
+        max_degrees: 8
+        weight: 0.15
+      organic_carbon:
+        min: 0.8
+        optimal_min: 2.0
+        optimal_max: 4.5
+        max: 7.0
+        weight: 0.10
+    limiting_factors:
+      - name: helada
+        condition: temp_min_c < 2
+        severity: critical
+        message: El tomate es muy sensible a heladas
+      - name: suelo_compacto
+        condition: clay_pct > 55
+        severity: high
+        message: Suelo muy arcilloso impide buen desarrollo radicular
+
+  - id: agave
+    name: Agave (Tequilana)
+    scientific_name: Agave tequilana
+    category: industrial
+    active: true
+    description: Planta suculenta de la región de Jalisco, extremadamente tolerante a sequía
+    requirements:
+      temperature:
+        min_c: 0
+        optimal_min_c: 18
+        optimal_max_c: 32
+        max_c: 45
+        weight: 0.20
+      precipitation:
+        annual_min_mm: 300
+        annual_optimal_mm: 700
+        annual_max_mm: 1200
+        weight: 0.20
+      soil_ph:
+        min: 6.0
+        optimal_min: 6.5
+        optimal_max: 8.0
+        max: 8.5
+        weight: 0.20
+      ndvi_baseline:
+        min_viable: 0.05
+        weight: 0.10
+      slope:
+        max_degrees: 30
+        weight: 0.15
+      soil_texture:
+        preferred: ["sandy_loam", "loam", "clay_loam"]
+        weight: 0.15
+    limiting_factors:
+      - name: encharcamiento_critico
+        condition: clay_pct > 70 and annual_precip_mm > 1200
+        severity: critical
+        message: El agave muere por pudrición radicular en suelos encharcados
+      - name: helada_severa
+        condition: temp_min_c < -5
+        severity: critical
+        message: Heladas severas matan la planta
+
+  - id: caña_azucar
+    name: Caña de Azúcar
+    scientific_name: Saccharum officinarum
+    category: industrial
+    active: true
+    description: Cultivo tropical intensivo, requiere calor y humedad constantes
+    requirements:
+      temperature:
+        min_c: 14
+        optimal_min_c: 24
+        optimal_max_c: 34
+        max_c: 40
+        weight: 0.30
+      precipitation:
+        annual_min_mm: 1200
+        annual_optimal_mm: 1800
+        annual_max_mm: 3000
+        weight: 0.25
+      soil_ph:
+        min: 5.0
+        optimal_min: 6.0
+        optimal_max: 7.5
+        max: 8.5
+        weight: 0.15
+      ndvi_baseline:
+        min_viable: 0.25
+        weight: 0.15
+      slope:
+        max_degrees: 10
+        weight: 0.15
+    limiting_factors:
+      - name: helada
+        condition: temp_min_c < 5
+        severity: critical
+        message: La caña de azúcar no tolera temperaturas menores a 5°C
+      - name: sequia_critica
+        condition: annual_precip_mm < 900
+        severity: critical
+        message: La caña requiere mínimo 900mm anuales de precipitación
+
+  - id: chile
+    name: Chile
+    scientific_name: Capsicum annuum
+    category: hortaliza
+    active: true
+    description: Hortaliza de gran importancia en México, diversas variedades con distinta tolerancia
+    requirements:
+      temperature:
+        min_c: 10
+        optimal_min_c: 18
+        optimal_max_c: 30
+        max_c: 38
+        weight: 0.25
+      precipitation:
+        annual_min_mm: 400
+        annual_optimal_mm: 700
+        annual_max_mm: 1200
+        weight: 0.20
+      soil_ph:
+        min: 5.5
+        optimal_min: 6.0
+        optimal_max: 7.0
+        max: 8.0
+        weight: 0.25
+      ndvi_baseline:
+        min_viable: 0.10
+        weight: 0.10
+      slope:
+        max_degrees: 10
+        weight: 0.10
+      organic_carbon:
+        min: 0.8
+        optimal_min: 1.5
+        optimal_max: 4.0
+        max: 6.0
+        weight: 0.10
+    limiting_factors:
+      - name: helada
+        condition: temp_min_c < 2
+        severity: critical
+        message: El chile es muy sensible a las heladas
+
+  - id: alfalfa
+    name: Alfalfa
+    scientific_name: Medicago sativa
+    category: forrajera
+    active: true
+    description: Forrajera de alta producción, tolerante a sequía moderada y suelos alcalinos
+    requirements:
+      temperature:
+        min_c: -10
+        optimal_min_c: 15
+        optimal_max_c: 28
+        max_c: 38
+        weight: 0.20
+      precipitation:
+        annual_min_mm: 400
+        annual_optimal_mm: 700
+        annual_max_mm: 1200
+        weight: 0.20
+      soil_ph:
+        min: 6.0
+        optimal_min: 6.5
+        optimal_max: 7.5
+        max: 8.5
+        weight: 0.25
+      ndvi_baseline:
+        min_viable: 0.10
+        weight: 0.10
+      slope:
+        max_degrees: 12
+        weight: 0.10
+      organic_carbon:
+        min: 0.5
+        optimal_min: 1.5
+        optimal_max: 4.0
+        max: 6.0
+        weight: 0.15
+    limiting_factors:
+      - name: ph_acido
+        condition: ph_mean < 5.5
+        severity: critical
+        message: La alfalfa no prospera en suelos muy ácidos (pH < 5.5)
+      - name: encharcamiento
+        condition: clay_pct > 65 and annual_precip_mm > 1000
+        severity: high
+        message: Susceptible a enfermedades de raíz en suelos con mal drenaje
