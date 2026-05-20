@@ -1,15 +1,31 @@
-fastapi==0.111.0
+# Web framework — actualizado desde 0.111.0 para incluir starlette>=0.47.2
+fastapi==0.136.1
 uvicorn[standard]==0.29.0
+# starlette es dependencia de fastapi; se fija explícitamente para
+# garantizar que se resuelvan CVE-2024-47874 y CVE-2025-54121
+starlette==0.47.2
+
+# Base de datos
 sqlalchemy==2.0.30
 geoalchemy2==0.15.1
 psycopg2-binary==2.9.9
+
+# Validación y configuración
 pydantic==2.7.1
 pydantic-settings==2.2.1
+# python-dotenv actualizado desde 1.0.1 para resolver CVE-2026-28684
+python-dotenv==1.2.2
+
+# Geo
 shapely==2.0.4
 pyproj==3.6.1
+
+# Utilidades
 numpy==1.26.4
 pyyaml==6.0.1
-python-dotenv==1.0.1
 httpx==0.27.0
-simpleeval==0.9.13
+
+# Seguridad — añadidos en auditoría
+# simpleeval actualizado desde 0.9.13 para resolver CVE-2026-32640
+simpleeval==1.0.5
 slowapi==0.1.9
