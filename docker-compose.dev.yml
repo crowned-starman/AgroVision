@@ -1,0 +1,20 @@
+# Usar SOLO en desarrollo local:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Agrega hot-reload y monta el código fuente como volumen
+# para que los cambios se reflejen sin reconstruir la imagen.
+
+version: "3.9"
+
+services:
+  db:
+    # Expone el puerto solo en desarrollo para poder conectar
+    # con DBeaver, pgAdmin u otro cliente local.
+    ports:
+      - "5432:5432"
+
+  backend:
+    volumes:
+      - ./backend:/app
+      - gee_credentials:/home/appuser/.config/earthengine
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload

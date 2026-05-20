@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from geoalchemy2.functions import ST_GeomFromGeoJSON, ST_Area, ST_Transform
@@ -13,20 +13,32 @@ from models.schemas.analysis import AnalyzeRequest, AnalysisResponse, TerrainFea
 from modules.geo.feature_extractor import validate_and_fix_polygon, calculate_area_ha, extract_features
 from modules.scoring.engine import run_scoring
 from api.auth import require_api_key
+from main import limiter
 
 router = APIRouter(dependencies=[Depends(require_api_key)])
 logger = logging.getLogger(__name__)
 
 
 @router.post("/analyze", response_model=AnalysisResponse, summary="Analizar terreno")
-def analyze_terrain(request: AnalyzeRequest, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")   # CVE-6: máximo 10 análisis por minuto por IP
+def analyze_terrain(request: Request, body: AnalyzeRequest, db: Session = Depends(get_db)):
     """
     Endpoint principal. Recibe un GeoJSON de polígono, extrae features
     ambientales y calcula scores de compatibilidad para todos los cultivos.
     """
+    # CVE-7: validar tamaño y complejidad del GeoJSON antes de procesarlo
+    geojson_raw = json.dumps(body.geojson)
+    if len(geojson_raw) > 500_000:  # 500 KB máximo
+        raise HTTPException(status_code=413, detail="GeoJSON demasiado grande (máximo 500 KB)")
+
+    coords = body.geojson.get("coordinates", [[]])
+    ring = coords[0] if coords else []
+    if len(ring) > 10_000:
+        raise HTTPException(status_code=422, detail="Polígono demasiado complejo (máximo 10 000 vértices)")
+
     # 1. Validar polígono
     try:
-        clean_geojson = validate_and_fix_polygon(request.geojson)
+        clean_geojson = validate_and_fix_polygon(body.geojson)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
@@ -37,13 +49,13 @@ def analyze_terrain(request: AnalyzeRequest, db: Session = Depends(get_db)):
     # 3. Guardar terreno en DB
     geojson_str = json.dumps(clean_geojson)
     terrain = Terrain(
-        name    = request.name or f"Terreno {area_ha:.1f} ha",
+        name    = body.name or f"Terreno {area_ha:.1f} ha",
         polygon = ST_GeomFromGeoJSON(geojson_str),
         area_ha = area_ha,
         geojson = clean_geojson,
     )
     db.add(terrain)
-    db.flush()  # obtener terrain.id sin commit
+    db.flush()
 
     # 4. Extraer features ambientales (mock o GEE)
     features_dict = extract_features(clean_geojson)
@@ -77,7 +89,6 @@ def analyze_terrain(request: AnalyzeRequest, db: Session = Depends(get_db)):
     # 6. Calcular scores para todos los cultivos
     score_results = run_scoring(features_dict)
 
-    crop_score_orm_list = []
     for sr in score_results:
         cs = CropScore(
             analysis_id          = analysis.id,
@@ -90,15 +101,12 @@ def analyze_terrain(request: AnalyzeRequest, db: Session = Depends(get_db)):
             explanation          = sr["explanation"],
         )
         db.add(cs)
-        crop_score_orm_list.append(cs)
 
     db.commit()
 
     # 7. Construir respuesta
     features_schema = TerrainFeatures(**features_dict)
-    scores_schema = [
-        CropScoreResponse(**sr) for sr in score_results
-    ]
+    scores_schema = [CropScoreResponse(**sr) for sr in score_results]
 
     return AnalysisResponse(
         analysis_id  = analysis.id,
@@ -111,7 +119,8 @@ def analyze_terrain(request: AnalyzeRequest, db: Session = Depends(get_db)):
 
 
 @router.get("/{analysis_id}", summary="Obtener análisis por ID")
-def get_analysis(analysis_id: str, db: Session = Depends(get_db)):
+@limiter.limit("30/minute")   # CVE-6: lectura con límite más permisivo
+def get_analysis(request: Request, analysis_id: str, db: Session = Depends(get_db)):
     """Retorna un análisis previamente calculado."""
     from uuid import UUID
     try:
@@ -131,14 +140,14 @@ def get_analysis(analysis_id: str, db: Session = Depends(get_db)):
         "computed_at":  analysis.computed_at.isoformat(),
         "data_source":  analysis.data_source,
         "features": {
-            "ndvi_mean":       analysis.ndvi_mean,
-            "ndvi_std":        analysis.ndvi_std,
-            "elevation_mean":  analysis.elevation_mean,
-            "slope_mean":      analysis.slope_mean,
-            "ph_mean":         analysis.ph_mean,
-            "clay_pct":        analysis.clay_pct,
-            "sand_pct":        analysis.sand_pct,
-            "temp_mean_c":     analysis.temp_mean_c,
+            "ndvi_mean":        analysis.ndvi_mean,
+            "ndvi_std":         analysis.ndvi_std,
+            "elevation_mean":   analysis.elevation_mean,
+            "slope_mean":       analysis.slope_mean,
+            "ph_mean":          analysis.ph_mean,
+            "clay_pct":         analysis.clay_pct,
+            "sand_pct":         analysis.sand_pct,
+            "temp_mean_c":      analysis.temp_mean_c,
             "annual_precip_mm": analysis.annual_precip_mm,
         },
         "scores": [
