@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:15-3.4
+    container_name: agrovision_db
+    environment:
+      POSTGRES_DB: agrovision
+      POSTGRES_USER: agrovision
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    # CVE-4: puerto 5432 eliminado — la BD solo es accesible
+    # dentro de la red interna de Docker, no desde el exterior.
+    volumes:
+      - agrovision_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agrovision -d agrovision"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: agrovision_backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DATA_MODE: ${DATA_MODE:-mock}
+      GEE_PROJECT: ${GEE_PROJECT}
+      API_KEY: ${API_KEY}
+    ports:
+      - "8000:8000"
+    # CVE-5: credenciales GEE movidas al home del usuario no-root (appuser).
+    # CVE-8: código fuente ya no se monta como volumen en producción.
+    volumes:
+      - gee_credentials:/home/appuser/.config/earthengine
+    depends_on:
+      db:
+        condition: service_healthy
+    # CVE-8: --reload eliminado. Usar docker-compose.dev.yml en desarrollo.
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload --workers 1
+
+volumes:
+  agrovision_pgdata:
+  gee_credentials:

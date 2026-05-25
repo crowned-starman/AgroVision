@@ -1,0 +1,93 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Columna del mapa ── */
+.map-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+}
+
+.map-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--white);
+  border-top: 1px solid var(--gray-200);
+  min-height: 52px;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--gray-400);
+}
+
+.analyzing-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--green-mid);
+  font-weight: 600;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--green-pale);
+  border-top-color: var(--green-mid);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-banner {
+  background: var(--red-light);
+  color: var(--red);
+  padding: 10px 14px;
+  font-size: 13px;
+  border-top: 1px solid #fca5a5;
+}
+
+/* ── Columna de resultados ── */
+.results-column {
+  width: 380px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border-left: 1px solid var(--gray-200);
+  overflow-y: auto;
+  transition: width .3s ease;
+}
+
+.results-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  padding: 24px;
+  color: var(--gray-400);
+  text-align: center;
+}
+
+.results-empty-icon { font-size: 48px; }
+.results-empty p    { font-size: 14px; color: var(--gray-600); }
+.results-empty small{ font-size: 12px; }
